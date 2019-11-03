@@ -3,12 +3,14 @@
 #include <time.h>
 #include <pthread.h>
 
-#define THREADS_COUNT   2
+#define THREADS_COUNT   4
 #define ARRAY_SIZE      20
 #define PIECE_SIZE      ARRAY_SIZE / THREADS_COUNT
 
 int arr[ARRAY_SIZE];
 int output_arr[ARRAY_SIZE];
+int thread_id[THREADS_COUNT];
+pthread_t threads[THREADS_COUNT];
 
 void init_array()
 {
@@ -71,28 +73,23 @@ void join_arrays(int *arr, int *output_arr)
 
     for(int x = 0; x < ARRAY_SIZE; x++)
     {
-        //printf("Starting with index %d\n", x);
-
         int minimum_index = 0;
 
         for(int y = 1; y < THREADS_COUNT; y++)
         {
             if(minimum_index_array[minimum_index] >= PIECE_SIZE)
             {
-                //printf("Minimum index of out bounds\n");
                 minimum_index = y;
                 continue;
             }
             if(minimum_index_array[y] >= PIECE_SIZE)
             {
-                //printf("Current index out of bounds\n");
                 continue;
             }
 
             if(arr[minimum_index_array[y] + y * PIECE_SIZE] < 
                 arr[minimum_index_array[minimum_index] + minimum_index * PIECE_SIZE])
             {
-                //printf("Found lower index\n");
                 minimum_index = y;   
             }
         }
@@ -104,22 +101,36 @@ void join_arrays(int *arr, int *output_arr)
     }
 }
 
+void init_thread_id()
+{
+    for(int i = 0; i < THREADS_COUNT; i++)
+    {
+        thread_id[i] = i;
+    }
+}
 
 int main()
 {
+    srand(time(NULL));
+
     init_array();
+    init_thread_id();
     print_array();
 
-    int thread0 = 0;
-    int thread1 = 1;
+    for(int i = 0; i < THREADS_COUNT; i++)
+    {
+        pthread_create(&threads[i], NULL, bubble_thread, &thread_id[i]);
+    }
+    for(int i = 0; i < THREADS_COUNT; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
 
-    bubble_thread(&thread0);
-    bubble_thread(&thread1);
-
+    printf("Sorted parts:\n");
     print_array();
 
     join_arrays(arr, output_arr);
-
+    printf("Merged array:\n");
     print_array(output_arr);
 
     return 0;

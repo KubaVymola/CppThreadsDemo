@@ -1,2 +1,4 @@
-main:
-	g++ -pthread first-example.cpp -o threads
+
+all: a.out
+	g++ -pthread thread-sort.cpp 
+	
