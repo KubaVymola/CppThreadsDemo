@@ -90,6 +90,10 @@ int main()
 	for(int i = 0; i < THREADS_COUNT; i++)
 	{
 		thread_indeces[i] = i;
+	}
+
+	for(int i = 0; i < THREADS_COUNT; i++)
+	{
 		pthread_create(&threads[i], NULL, finder_thread, &thread_indeces[i]);
 	}	
 

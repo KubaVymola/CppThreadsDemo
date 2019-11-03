@@ -1,4 +1,5 @@
 
-all: a.out
-	g++ -pthread thread-sort.cpp 
+all: 
+	g++ -pthread thread-sort.cpp -o sort.out
+	g++ -pthread thread-search.cpp -o search.out
 	
