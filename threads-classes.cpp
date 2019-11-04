@@ -3,7 +3,7 @@
 #include <time.h>
 #include <pthread.h>
 
-#define THREAD_COUNT    2
+#define THREAD_COUNT    3
 #define ARRAY_SIZE      20
 #define TYPE            int
 #define MAX_NUM         10000
@@ -49,7 +49,9 @@ void init_jobs()
     for(int i = 0; i < THREAD_COUNT; i++)
     {
         jobs[i] = thread_job((i == 0 ? 0 : jobs[i - 1].from + jobs[i - 1].length), 
-            ARRAY_SIZE / THREAD_COUNT, i, array);
+            (i == THREAD_COUNT - 1 ? ARRAY_SIZE - (jobs[i - 1].from + jobs[i - 1].length) : ARRAY_SIZE / THREAD_COUNT), i, array);
+
+        printf("Initialized job %d with length %d; from %d to %d\n", i, jobs[i].length, jobs[i].from, jobs[i].from + jobs[i].length);
     }
 }
 
@@ -104,6 +106,21 @@ void merge_arrays(int *input_array, thread_job *jobs, int *output_array,
     
 }
 
+bool check_sorted(int *array, int size)
+{
+    for (int i = 1; i < size; i++)
+    {
+        if(array[i] < array[i - 1])
+        {
+            printf("Not sorted\n");
+            return false;
+        }
+    }
+
+    printf("Sorted!\n");
+    return true;
+}
+
 int main(int argc, int *argv)
 {
     srand(time(NULL));
@@ -132,8 +149,9 @@ int main(int argc, int *argv)
     printf("Merged array:\n");
     print_array(output_array, ARRAY_SIZE);
 
+    check_sorted(output_array, ARRAY_SIZE);
 
-    return 0;
+    //return 0;
     //--------------------
 
 
@@ -142,8 +160,10 @@ int main(int argc, int *argv)
     thread_job job = { 0, ARRAY_SIZE, 0, array };
     select_sort((void*)&job);
     
-    printf("Sorted array with sequential approach");
+    printf("Sorted array with sequential approach\n");
     print_array(array, ARRAY_SIZE);    
+
+    check_sorted(array, ARRAY_SIZE);
 
     return 0;
 }
